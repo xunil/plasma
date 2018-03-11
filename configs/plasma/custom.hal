@@ -1,3 +1,30 @@
 # Include your custom HAL commands here
 # This file will not be overwritten when you run stepconf again
 
+# Torch Height Control
+loadrt encoder
+addf encoder.capture-position servo-thread
+addf encoder.update-counters servo-thread
+loadrt thc
+addf thc servo-thread
+#net spindle-cmd <= motion.spindle-speed-out
+#net spindle-on <= motion.spindle-on
+
+# Set up the Encoder for the THC
+setp encoder.0.counter-mode 1
+net thc-vel-in encoder.0.velocity => thc.encoder-vel
+setp thc.scale-offset 954.6875
+setp thc.vel-scale 1.0
+
+# this might need to be increased
+#setp thc.correction-vel 0.0001
+
+# spindle on starts the arc
+#net spindle-on motion.spindle-on => parport.0.pin-16-out
+net spindle-on thc.torch-on
+
+# starts the motion when the plasma arc has transfered to the work
+# net start-motion-input thc.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in
+
+net thcad-pulse-in parport.1.pin-12-in => encoder.0.phase-A
+net estop-ext thc.enable

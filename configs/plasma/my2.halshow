@@ -1,0 +1,18 @@
+# halshow watchlist created Sun Feb 04 16:21:41 PST 2018
+
+sig+din-00
+sig+din-01
+sig+din-02
+sig+dout-00
+sig+estop-ext
+sig+estop-out
+sig+max-x
+sig+max-y
+sig+max-z
+sig+spindle-on
+pin+thc.current-vel
+pin+thc.encoder-vel
+pin+thc.torch-on
+pin+thc.volts
+pin+thc.enable
+pin+encoder.0.phase-A

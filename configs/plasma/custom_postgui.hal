@@ -1,3 +1,16 @@
 # Include your custom_postgui HAL commands here
 # This file will not be overwritten when you run stepconf again
 
+# Z up
+# doesn't work; signal shows up in halshow but no reaction from axis
+# net din-00 => halui.axis.z.plus
+#net din-00 => halui.joint.0.plus # 0=X 1=Y 2=Z
+# Z down
+# doesn't work; signal shows up in halshow but no reaction from axis
+# net din-01 => halui.axis.z.minus
+#net din-01 => halui.joint.0.minus # 0=X 1=Y 2=Z
+#setp halui.axis.jog-speed 10
+#plasma.hal:net din-00 => motion.digital-in-00
+#plasma.hal:net din-00          <= parport.1.pin-09-in
+#plasma.hal:net din-01 => motion.digital-in-01
+#plasma.hal:net din-01          <= parport.1.pin-13-in
