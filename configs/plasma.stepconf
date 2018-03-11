@@ -111,11 +111,11 @@
   <property name="pp2_pin5_in_inv" type="bool" value="False"/>
   <property name="pp2_pin5inv" type="bool" value="False"/>
   <property name="pp2_pin6" type="string" value="unused-output"/>
-  <property name="pp2_pin6_in" type="string" value="max-z"/>
+  <property name="pp2_pin6_in" type="string" value="max-home-z"/>
   <property name="pp2_pin6_in_inv" type="bool" value="False"/>
   <property name="pp2_pin6inv" type="bool" value="False"/>
   <property name="pp2_pin7" type="string" value="unused-output"/>
-  <property name="pp2_pin7_in" type="string" value="min-home-z"/>
+  <property name="pp2_pin7_in" type="string" value="min-z"/>
   <property name="pp2_pin7_in_inv" type="bool" value="False"/>
   <property name="pp2_pin7inv" type="bool" value="False"/>
   <property name="pp2_pin8" type="string" value="unused-output"/>
@@ -207,7 +207,7 @@
   <property name="ysteprev" type="float" value="-2000.0"/>
   <property name="zhomepos" type="float" value="0.1"/>
   <property name="zhomesw" type="float" value="0.0"/>
-  <property name="zhomevel" type="float" value="0.05"/>
+  <property name="zhomevel" type="float" value="0.35"/>
   <property name="zlatchdir" type="int" value="0"/>
   <property name="zleadscrew" type="float" value="8.0"/>
   <property name="zmaxacc" type="float" value="2.0"/>
