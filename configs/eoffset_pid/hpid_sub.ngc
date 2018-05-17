@@ -69,6 +69,7 @@ o<hpid_touchoff> call [#<pierce_hgt>][#<pierce_dly>][#<torch_cut_hgt>][#<arc_tim
             M68 E0 Q0  ;set torch-volts 0 (E:request <= motion.analog-out-00)
             M65 P1     ;torch off         (deassert E:enable-in-a)
             M65 P0     ;                  (deassert E:enable-in-b)
+            M5
             (debug, torch off)
             G92.1           ;Cancel offsets
             G0 Z#<safe_hgt>

@@ -6,6 +6,7 @@ loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EM
 loadrt hal_parport cfg="0x378 out 0xccc8 in"
 setp parport.0.reset-time 1000
 loadrt stepgen step_type=0,0,0
+# loadrt halui
 
 addf parport.0.read base-thread
 addf parport.1.read base-thread
@@ -40,7 +41,8 @@ net dout-00         => parport.0.pin-14-out
 net xenable         => parport.0.pin-17-out
 
 net xenable         => parport.1.pin-01-out
-net spindle-on      => parport.1.pin-17-out
+# net spindle-on      => parport.1.pin-17-out
+net E:enable-in-a => parport.1.pin-17-out
 
 
 net max-x           <= parport.1.pin-02-in
@@ -51,6 +53,12 @@ net max-home-z      <= parport.1.pin-06-in
 net min-z           <= parport.1.pin-07-in
 net estop-ext       <= parport.1.pin-08-in
 
+net jog-zup         <= parport.1.pin-09-in
+net jog-zdn         <= parport.1.pin-13-in
+
+setp halui.joint.jog-speed 3.0
+net jog-zup => halui.joint.2.plus
+net jog-zdn => halui.joint.2.minus
 
 setp stepgen.0.position-scale [JOINT_0]SCALE
 setp stepgen.0.steplen 1
@@ -108,11 +116,11 @@ net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 
 # connections for external_offsets code
 net E:arc-ok <= parport.1.pin-11-in
-#  net E:feedback <= parport.1.pin-12-in
 loadrt encoder num_chan=1
 addf encoder.update-counters base-thread
 addf encoder.capture-position servo-thread
 setp encoder.0.counter-mode true
+net thc-counter-in encoder.0.phase-A <= parport.1.pin-12-in
 
 # loadrt threads name1=thc-thread period1=80000 fp1=1 
 loadrt thc
