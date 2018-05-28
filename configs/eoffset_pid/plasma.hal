@@ -56,9 +56,10 @@ net estop-ext       <= parport.1.pin-08-in
 net jog-zup         <= parport.1.pin-09-in
 net jog-zdn         <= parport.1.pin-13-in
 
-setp halui.joint.jog-speed 3.0
-net jog-zup => halui.joint.2.plus
-net jog-zdn => halui.joint.2.minus
+setp halui.axis.jog-speed 3.0
+net jog-zup => halui.axis.z.plus
+net jog-zdn => halui.axis.z.minus
+# net jog-zdn => halui.axis.z.select
 
 setp stepgen.0.position-scale [JOINT_0]SCALE
 setp stepgen.0.steplen 1
@@ -127,8 +128,20 @@ loadrt thc
 addf thc servo-thread
 
 net thc-vel-in encoder.0.velocity => thc.encoder-vel
-setp thc.scale-offset 955
-setp thc.vel-scale 0.00186393289842
+# Original scale-offset value
+# setp thc.scale-offset 955
+setp thc.scale-offset 1909.375
+# Original vel-scale value
+# setp thc.vel-scale 0.00186393289842
+# New vel-scale value - 50x the one above
+# setp thc.vel-scale 0.09319664492100
+# New _new_ value - old one gave 52.944444 not 50 - this is above multiplied by 0.944386149004
+# setp thc.vel-scale 0.08801362059703638580
+# Next new value - 350V full scale, F/64 output from THCAD
+# setp thc.vel-scale 0.006759890625
+# OK for real this time - 350V full scale, F/64 output from THCAD, multiplied by HyperTherm scaling factor 7
+setp thc.vel-scale 0.0473192343750
+
 # this might need to be increased
 setp thc.correction-vel 0.0001
 
