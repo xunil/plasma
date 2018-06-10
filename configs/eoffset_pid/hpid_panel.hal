@@ -77,3 +77,10 @@ net E:hold-request    <= pyvcp.hold-request
 
 #   E:minimum-vel     => elsewhere (hpid.hal)
 net E:minimum-vel     <= pyvcp.minimum-vel
+
+# Z stepper counts on the hpid_panel - debugging only
+setp encoder.1.counter-mode true
+net zstep => encoder.1.phase-A
+net zcounts encoder.1.counts => pyvcp.z-counts
+net zcountreset encoder.1.reset <= pyvcp.z-counts-reset
+

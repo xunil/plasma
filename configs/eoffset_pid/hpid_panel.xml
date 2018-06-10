@@ -225,6 +225,25 @@
         </checkbutton>
       </hbox>
 
+      <vbox>
+        <hbox>
+          <s32>
+            <halpin>"z-counts"</halpin>
+            <format>"10d"</format>
+            <width>"11"</width>
+            <bg>"black"</bg>
+            <fg>"gold"</fg>
+            <font>"bold"</font>
+          </s32>
+        </hbox>
+        <button>
+          <halpin>"z-counts-reset"</halpin>
+          <text>"Reset"</text>
+          <width>"5"</width>
+          <bd>3</bd>
+        </button>
+      </vbox>
+
     </vbox>
   </vbox>
 </pyvcp>

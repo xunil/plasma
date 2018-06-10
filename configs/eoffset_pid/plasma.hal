@@ -117,11 +117,12 @@ net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 
 # connections for external_offsets code
 net E:arc-ok <= parport.1.pin-11-in
-loadrt encoder num_chan=1
+loadrt encoder num_chan=2
 addf encoder.update-counters base-thread
 addf encoder.capture-position servo-thread
 setp encoder.0.counter-mode true
 net thc-counter-in encoder.0.phase-A <= parport.1.pin-12-in
+
 
 # loadrt threads name1=thc-thread period1=80000 fp1=1 
 loadrt thc
