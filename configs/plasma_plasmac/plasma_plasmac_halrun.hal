@@ -1,0 +1,238 @@
+# TODO: Integrate all the emcmot and pid HAL connections from the 7i92step example;
+# right now LinuxCNC will load but the axes won't move, which I think is because
+# the Mesa card is never getting the enable signal.
+# - rob 2019-02-26
+#loadrt [KINS]KINEMATICS
+#loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS num_spindles=[TRAJ]SPINDLES
+
+loadrt trivkins coordinates=XYZ kinstype=BOTH
+loadrt motmod servo_period_nsec=1000000 num_joints=3 num_spindles=1
+
+
+### 7I92 Additions vvvvv
+loadrt hostmot2
+
+# [HOSTMOT2]
+# DRIVER=hm2_eth board_ip="10.10.10.10"
+# BOARD=7i92
+# CONFIG=
+
+# load low-level driver
+loadrt hm2_eth board_ip="10.10.10.10" config="num_encoders=2 num_stepgens=3 num_pwmgens=0"
+
+setp hm2_7i92.0.watchdog.timeout_ns 25000000
+addf hm2_7i92.0.read         servo-thread
+addf hm2_7i92.0.write        servo-thread
+#addf "hm2_$::HOSTMOT2(BOARD).0.pet_watchdog" servo-thread
+# latch 50 usec beforw nominal read time:
+
+setp hm2_7i92.0.dpll.01.timer-us -50
+setp hm2_7i92.0.stepgen.timer-number 1
+
+
+setp hm2_7i92.0.gpio.024.is_output true
+### 7I92 Additions ^^^^^
+
+
+####  !!  
+####  !!  addf motion-command-handler servo-thread
+####  !!  addf motion-controller servo-thread
+####  !!  # addf stepgen.update-freq servo-thread
+####  !!  net spindle-cmd-rpm     <= spindle.0.speed-out
+####  !!  net spindle-cmd-rpm-abs <= spindle.0.speed-out-abs
+####  !!  net spindle-cmd-rps     <= spindle.0.speed-out-rps
+####  !!  net spindle-cmd-rps-abs <= spindle.0.speed-out-rps-abs
+####  !!  net spindle-at-speed    => spindle.0.at-speed
+####  !!  # net spindle-on <= spindle.0.on
+####  !!  net dout-00 <= motion.digital-out-00
+####  !!  
+####  !!  
+####  !!  # Configuration pin-out:
+####  !!  # 
+####  !!  # IO Connections for P2
+####  !!  # Pin#  I/O   Pri. func    Sec. func       Chan      Pin func        Pin Dir    Parport HAL connection
+####  !!  # 
+####  !!  #  1      0   IOPort       None                                                 net estop-out       => parport.0.pin-01-out
+####  !!  # 14      1   IOPort       PWM              0        PWM             (Out)      net dout-00         => parport.0.pin-14-out
+####  !!  #  2      2   IOPort       StepGen          0        Step/Table1     (Out)      net xstep           => parport.0.pin-02-out
+####  !!  # 15      3   IOPort       None           
+####  !!  #  3      4   IOPort       StepGen          0        Dir/Table2      (Out)      net xdir            => parport.0.pin-03-out
+####  !!  # 16      5   IOPort       StepGen          4        Step/Table1     (Out)
+####  !!  #  4      6   IOPort       StepGen          1        Step/Table1     (Out)      net ystep           => parport.0.pin-04-out
+####  !!  # 17      7   IOPort       None                                                 net xenable         => parport.0.pin-17-out
+####  !!  #  5      8   IOPort       StepGen          1        Dir/Table2      (Out)      net ydir            => parport.0.pin-05-out
+####  !!  #  6      9   IOPort       StepGen          2        Step/Table1     (Out)      net zstep           => parport.0.pin-06-out
+####  !!  #  7     10   IOPort       StepGen          2        Dir/Table2      (Out)      net zdir            => parport.0.pin-07-out
+####  !!  #  8     11   IOPort       StepGen          3        Step/Table1     (Out)
+####  !!  #  9     12   IOPort       StepGen          3        Dir/Table2      (Out)
+####  !!  # 10     13   IOPort       QCount           0        Quad-A          (In)
+####  !!  # 11     14   IOPort       QCount           0        Quad-B          (In)
+####  !!  # 12     15   IOPort       QCount           0        Quad-IDX        (In)
+####  !!  # 13     16   IOPort       None           
+####  !!  # 
+####  !!  # IO Connections for P1
+####  !!  # Pin#  I/O   Pri. func    Sec. func       Chan      Pin func        Pin Dir    Parport HAL connection
+####  !!  # 
+####  !!  #  1     17   IOPort       None                                                 
+####  !!  # 14     18   IOPort       PWM              1        PWM             (Out)
+####  !!  #  2     19   IOPort       StepGen          5        Step/Table1     (Out)      net max-x           <= parport.1.pin-02-in
+####  !!  # 15     20   IOPort       None           
+####  !!  #  3     21   IOPort       StepGen          5        Dir/Table2      (Out)      net min-home-x      <= parport.1.pin-03-in
+####  !!  # 16     22   IOPort       StepGen          9        Step/Table1     (Out)
+####  !!  #  4     23   IOPort       StepGen          6        Step/Table1     (Out)      net max-y           <= parport.1.pin-04-in
+####  !!  # 17     24   IOPort       None                                                 net E:enable-in-a => parport.1.pin-17-out
+####  !!  #  5     25   IOPort       StepGen          6        Dir/Table2      (Out)      net min-home-y      <= parport.1.pin-05-in
+####  !!  #  6     26   IOPort       StepGen          7        Step/Table1     (Out)      net max-home-z      <= parport.1.pin-06-in
+####  !!  #  7     27   IOPort       StepGen          7        Dir/Table2      (Out)      net min-z           <= parport.1.pin-07-in
+####  !!  #  8     28   IOPort       StepGen          8        Step/Table1     (Out)      net estop-ext       <= parport.1.pin-08-in
+####  !!  #  9     29   IOPort       StepGen          8        Dir/Table2      (Out)      net jog-zup         <= parport.1.pin-09-in
+####  !!  # 10     30   IOPort       QCount           1        Quad-A          (In)
+####  !!  # 11     31   IOPort       QCount           1        Quad-B          (In)       net E:arc-ok <= parport.1.pin-11-in
+####  !!  # 12     32   IOPort       QCount           1        Quad-IDX        (In)       net thc-counter-in encoder.0.phase-A <= parport.1.pin-12-in
+####  !!  # 13     33   IOPort       None                                                 net jog-zdn         <= parport.1.pin-13-in
+####  !!  
+####  !!  
+####  !!  net estop-out       => hm2_7i92.0.gpio.000.out  # parport.0.pin-01-out
+####  !!  # net dout-00         => hm2_7i92.0.gpio.001.out  # parport.0.pin-14-out
+####  !!  #net xenable         => hm2_7i92.0.gpio.007.out  # parport.0.pin-17-out
+####  !!  
+####  !!  #net xenable         => hm2_7i92.0.gpio.017.out   # parport.1.pin-01-out
+####  !!  # net spindle-on      => parport.1.pin-17-out
+####  !!  #net E:enable-in-a   => hm2_7i92.0.gpio.024.out   # parport.1.pin-17-out
+####  !!  
+####  !!  
+####  !!  net max-x           <= hm2_7i92.0.gpio.019.in       # parport.1.pin-02-in
+####  !!  net min-home-x      <= hm2_7i92.0.gpio.021.in       # parport.1.pin-03-in
+####  !!  net max-y           <= hm2_7i92.0.gpio.023.in       # parport.1.pin-04-in
+####  !!  net min-home-y      <= hm2_7i92.0.gpio.025.in       # parport.1.pin-05-in
+####  !!  net max-home-z      <= hm2_7i92.0.gpio.026.in       # parport.1.pin-06-in
+####  !!  net min-z           <= hm2_7i92.0.gpio.027.in       # parport.1.pin-07-in
+####  !!  net estop-ext       <= hm2_7i92.0.gpio.028.in       # parport.1.pin-08-in
+####  !!  
+####  !!  net jog-zup         <= hm2_7i92.0.gpio.029.in       # parport.1.pin-09-in
+####  !!  net jog-zdn         <= hm2_7i92.0.gpio.033.in       # parport.1.pin-13-in
+####  !!  
+####  !!  setp halui.axis.jog-speed 3.0
+####  !!  net jog-zup => halui.axis.z.plus
+####  !!  net jog-zdn => halui.axis.z.minus
+####  !!  # net jog-zdn => halui.axis.z.select
+####  !!  
+####  !!  # axis enable chain
+####  !!  newsig emcmot.00.enable bit
+####  !!  sets emcmot.00.enable FALSE
+####  !!  
+####  !!  #net emcmot.00.enable <= axis.0.amp-enable-out
+####  !!  #net emcmot.00.enable => hm2_7i92.0.stepgen.00.enable     # pid.0.enable
+####  !!  
+####  !!  
+####  !!  setp hm2_7i92.0.stepgen.00.position-scale [JOINT_0]SCALE
+####  !!  setp hm2_7i92.0.stepgen.00.steplen 5000
+####  !!  setp hm2_7i92.0.stepgen.00.stepspace 5000
+####  !!  setp hm2_7i92.0.stepgen.00.dirhold 5000
+####  !!  setp hm2_7i92.0.stepgen.00.dirsetup 5000
+####  !!  setp hm2_7i92.0.stepgen.00.maxaccel [JOINT_0]STEPGEN_MAXACCEL
+####  !!  net xpos-cmd joint.0.motor-pos-cmd => hm2_7i92.0.stepgen.00.position-cmd
+####  !!  net xpos-fb hm2_7i92.0.stepgen.00.position-fb => joint.0.motor-pos-fb
+####  !!  # net xstep <= hm2_7i92.0.stepgen.00.step
+####  !!  # net xdir <= hm2_7i92.0.stepgen.00.dir
+####  !!  net xenable joint.0.amp-enable-out => hm2_7i92.0.stepgen.00.enable
+####  !!  net min-home-x => joint.0.home-sw-in
+####  !!  net min-home-x => joint.0.neg-lim-sw-in
+####  !!  net max-x => joint.0.pos-lim-sw-in
+####  !!  
+####  !!  # axis enable chain
+####  !!  newsig emcmot.01.enable bit
+####  !!  sets emcmot.01.enable FALSE
+####  !!  
+####  !!  #net emcmot.01.enable <= axis.1.amp-enable-out
+####  !!  #net emcmot.01.enable => hm2_7i92.0.stepgen.01.enable # pid.1.enable
+####  !!  
+####  !!  
+####  !!  setp hm2_7i92.0.stepgen.01.position-scale [JOINT_1]SCALE
+####  !!  setp hm2_7i92.0.stepgen.01.steplen 5000
+####  !!  setp hm2_7i92.0.stepgen.01.stepspace 5000
+####  !!  setp hm2_7i92.0.stepgen.01.dirhold 5000
+####  !!  setp hm2_7i92.0.stepgen.01.dirsetup 5000
+####  !!  setp hm2_7i92.0.stepgen.01.maxaccel [JOINT_1]STEPGEN_MAXACCEL
+####  !!  net ypos-cmd joint.1.motor-pos-cmd => hm2_7i92.0.stepgen.01.position-cmd
+####  !!  net ypos-fb hm2_7i92.0.stepgen.01.position-fb => joint.1.motor-pos-fb
+####  !!  # net ystep <= hm2_7i92.0.stepgen.01.step
+####  !!  # net ydir <= hm2_7i92.0.stepgen.01.dir
+####  !!  net yenable joint.1.amp-enable-out => hm2_7i92.0.stepgen.01.enable
+####  !!  net min-home-y => joint.1.home-sw-in
+####  !!  net min-home-y => joint.1.neg-lim-sw-in
+####  !!  net max-y => joint.1.pos-lim-sw-in
+####  !!  
+####  !!  newsig emcmot.02.enable bit
+####  !!  sets emcmot.02.enable FALSE
+####  !!  
+####  !!  #net emcmot.02.enable <= axis.2.amp-enable-out
+####  !!  #net emcmot.02.enable => hm2_7i92.0.stepgen.02.enable # pid.2.enable
+####  !!  
+####  !!  
+####  !!  setp hm2_7i92.0.stepgen.02.position-scale [JOINT_2]SCALE
+####  !!  setp hm2_7i92.0.stepgen.02.steplen 5000
+####  !!  setp hm2_7i92.0.stepgen.02.stepspace 5000
+####  !!  setp hm2_7i92.0.stepgen.02.dirhold 5000
+####  !!  setp hm2_7i92.0.stepgen.02.dirsetup 5000
+####  !!  setp hm2_7i92.0.stepgen.02.maxaccel [JOINT_2]STEPGEN_MAXACCEL
+####  !!  net zpos-cmd joint.2.motor-pos-cmd => hm2_7i92.0.stepgen.02.position-cmd
+####  !!  net zpos-fb hm2_7i92.0.stepgen.02.position-fb => joint.2.motor-pos-fb
+####  !!  # net zstep <= hm2_7i92.0.stepgen.02.step
+####  !!  # net zdir <= hm2_7i92.0.stepgen.02.dir
+####  !!  net zenable joint.2.amp-enable-out => hm2_7i92.0.stepgen.02.enable
+####  !!  net max-home-z => joint.2.home-sw-in
+####  !!  net min-z => joint.2.neg-lim-sw-in
+####  !!  net max-home-z => joint.2.pos-lim-sw-in
+####  !!  
+####  !!  net estop-out <= iocontrol.0.user-enable-out
+####  !!  net estop-ext => iocontrol.0.emc-enable-in
+####  !!  
+####  !!  # loadusr -W hal_manualtoolchange
+####  !!  # net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
+####  !!  # net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
+####  !!  # net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
+####  !!  # net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+####  !!  
+####  !!  # connections for external_offsets code
+####  !!  #net E:arc-ok <= hm2_7i92.0.gpio.017.in   # parport.1.pin-11-in
+####  !!  
+####  !!  
+####  !!  loadrt encoder num_chan=2
+####  !!  addf encoder.update-counters servo-thread
+####  !!  addf encoder.capture-position servo-thread
+####  !!  # setp encoder.0.counter-mode true
+####  !!  # net thc-counter-in encoder.0.phase-A <= hm2_7i92.0.gpio.030.in   # parport.1.pin-12-in
+####  !!  setp hm2_7i92.0.encoder.01.counter-mode true
+####  !!  
+####  !!  
+####  !!  
+####  !!  # loadrt threads name1=thc-thread period1=80000 fp1=1 
+####  !!  loadrt thc
+####  !!  addf thc servo-thread
+####  !!  
+####  !!  # net thc-vel-in encoder.0.velocity => thc.encoder-vel
+####  !!  net thc-vel-in hm2_7i92.0.encoder.01.velocity => thc.encoder-vel
+####  !!  
+####  !!  # Original scale-offset value
+####  !!  # setp thc.scale-offset 955
+####  !!  setp thc.scale-offset 1909.375
+####  !!  # Original vel-scale value
+####  !!  # setp thc.vel-scale 0.00186393289842
+####  !!  # New vel-scale value - 50x the one above
+####  !!  # setp thc.vel-scale 0.09319664492100
+####  !!  # New _new_ value - old one gave 52.944444 not 50 - this is above multiplied by 0.944386149004
+####  !!  # setp thc.vel-scale 0.08801362059703638580
+####  !!  # Next new value - 350V full scale, F/64 output from THCAD
+####  !!  # setp thc.vel-scale 0.006759890625
+####  !!  # OK for real this time - 350V full scale, F/64 output from THCAD, multiplied by HyperTherm scaling factor 7
+####  !!  setp thc.vel-scale 0.0473192343750
+####  !!  
+####  !!  # this might need to be increased
+####  !!  setp thc.correction-vel 0.0001
+####  !!  
+####  !!  #net E:feedback <= thc.volts
+####  !!  
+####  !!  #Toolchange passthrough
+####  !!  net tool:change iocontrol.0.tool-change  => iocontrol.0.tool-changed
+####  !!  net tool:prep   iocontrol.0.tool-prepare => iocontrol.0.tool-prepared

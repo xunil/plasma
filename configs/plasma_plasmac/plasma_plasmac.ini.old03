@@ -1,0 +1,309 @@
+
+# this section only reqired if using the sim testing panel
+# [APPLICATIONS]
+# DELAY                   = 3
+# APP                     = ./test/plasmac_test.py
+
+# required
+[PLASMAC]
+
+# sets the operating mode, if not specified the default is 0
+# 0 = use arc-voltage-in for arcOK and THC (no need to connect arc-ok-in, move-up-in and move-down-in)
+# 1 = use arc-ok-in for arcOK and arc-voltage-in for THC (no need to connect move-up-in and move-down-in)
+# 2 = use arc-ok-in for arcOK and move-down-in + move-up-in for THC (no need to connect arc-voltage-in)
+MODE = 1
+
+# enable(0) or disable(1) the plasmac config page, if not specified the default is enabled
+CONFIG_DISABLE          = 0
+
+# the font for the Axis GUI, if not specified 'sans 10' will be used
+# valid font sizes are from 10 to 15
+FONT                    = sans 11
+
+# the window size for the Axis GUI, 0 = minimum size to suit font, 1 = maximized
+MAXIMISED               = 0
+
+# the theme for the Axis GUI tabs, if not specified the system theme will be used
+THEME                   = BlueMenta
+
+
+
+# percentage of cut-feed-rate used for paused motion speed
+PAUSED_MOTION_SPEED     = 50
+
+# torch on time when manual pulse requested
+TORCH_PULSE_TIME        = 1.0
+
+# the text that appears on the button
+# for multiple lines, split the lines with a \
+# e.g. BUTTON_1_NAME = Clear \ Coordinates or 
+#BUTTON_n_NAME
+BUTTON_1_NAME           = Ohmic\Test
+BUTTON_2_NAME           = Probe\Test
+BUTTON_3_NAME           = Z\To Top
+BUTTON_4_NAME           = Load\Sheet
+BUTTON_5_NAME           = HAL\Show
+
+# the command that the button sends
+# for multiple lines, split the lines with a \
+# e.g. BUTTON_1_NAME = Clear \ Coordinates or 
+# e.g. BUTTON_1_CODE =  g0 x0 \ g1x10f100 \ g0x0
+# ini file settings can be used, must be within {} and with a space between
+# e.g. G0 X{JOINT_0 HOME}
+# e.g. G0 X{JOINT_0 HOME} Y1
+# e.g. G53 G0 Z[{AXIS_Z MAX_LIMIT} - 1.001]
+# for an external command precede the command with %
+# e.g. %halshow
+# external commands and gcode may be on the same code line
+# e.g  %halshow \ g0x.5y.5 \ %halmeter
+# there are two special commands:
+# probe-test and ohmic-test
+# using these will set/reset the corresponding hal pin in the component
+# adding a number after probe-test will hold the pin for that number of seconds
+# e.g. probe-test 15 will hold the halpin on for 15 seconds
+#BUTTON_n_CODE
+BUTTON_1_CODE           = ohmic-test
+BUTTON_2_CODE           = probe-test
+BUTTON_3_CODE           = G53 G0 Z[{AXIS_Z MAX_LIMIT} - 0.0401]
+BUTTON_4_CODE           = G53 G0 X{JOINT_0 HOME} Y1
+BUTTON_5_CODE           = %halshow
+
+# this section required as is for removing z axis moves from the loaded gcode file
+# this is optional and if used then plasmac_gcode.py needs to be set as executable
+[FILTER]
+PROGRAM_EXTENSION       = .ngc remove z axis stuff
+ngc                     = ./plasmac_gcode.py
+
+[RS274NGC]
+RS274NGC_STARTUP_CODE   = o<imperial_startup> call
+PARAMETER_FILE          = imperial_parameters.txt
+
+# required, ./ must be in this path
+SUBROUTINE_PATH         = ./:../../nc_files/subroutines
+
+# required for reading ini and hal variables
+FEATURES                = 12
+
+# required for our material change
+USER_M_PATH = ./
+
+[HAL]
+# required
+TWOPASS = ON
+# the base machine
+HALFILE = plasma_plasmac.hal
+# the plasmac component connections
+HALFILE = plasmac.hal
+# the plasmac machine connections
+HALFILE = plasma_plasmac_connections.hal
+# use this for customisation after GUI has loaded
+POSTGUI_HALFILE = postgui.hal
+# required
+HALUI = halui
+
+[DISPLAY]
+#PYVCP = hpid_panel.xml
+DISPLAY = axis
+# OPEN_FILE = hpid_demo.ngc
+GEOMETRY = XYZ
+POSITION_OFFSET = RELATIVE
+POSITION_FEEDBACK = ACTUAL
+MAX_FEED_OVERRIDE = 3.5
+MIN_SPINDLE_OVERRIDE = 0.5
+MAX_SPINDLE_OVERRIDE = 1.2
+DEFAULT_LINEAR_VELOCITY = 1.00
+MIN_LINEAR_VELOCITY = 0
+MAX_LINEAR_VELOCITY = 1.50
+INTRO_GRAPHIC = linuxcnc.gif
+INTRO_TIME = 5
+PROGRAM_PREFIX = /home/plasma/linuxcnc/nc_files
+INCREMENTS = .1in .05in .01in .005in .001in .0005in .0001in
+TOOL_EDITOR = tooledit x y
+
+
+TKPKG = Ngcgui 1.0
+NGCGUI_FONT = Helvetica -12 normal
+#NGCGUI_SUBFILE = hpid_sub.ngc
+
+OPEN_FILE = ""
+
+# required
+EMBED_TAB_NAME          = Statistics
+EMBED_TAB_COMMAND       = gladevcp -c plasmac_stats -x {XID} -u ./plasmac_stats.py -H ./plasmac_stats.hal plasmac_stats.glade
+
+EMBED_TAB_NAME          = Plasma Run
+# use one of the next two
+# run panel in tab behind preview
+EMBED_TAB_COMMAND       = gladevcp -c plasmac_run -x {XID} -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_tab.glade
+# run panel on right
+#GLADEVCP                = -c plasmac_run -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_panel.glade
+
+EMBED_TAB_NAME          = Plasma Config
+EMBED_TAB_COMMAND       = gladevcp -c plasmac_config -x {XID} -u ./plasmac_config.py -H plasmac_config.hal plasmac_config.glade
+
+# required
+USER_COMMAND_FILE       = plasmac_axis.py
+
+# hpid.ini: adapted from jthornton plasma configuration
+
+[HOSTMOT2]
+DRIVER=hm2_eth board_ip="10.10.10.10"
+BOARD=7i92
+CONFIG="num_encoders=2 num_stepgens=3 num_pwmgen=0"
+
+[EMC]
+MACHINE = plasma_plasmac
+VERSION = 1.1
+
+[TASK]
+TASK = milltask
+# CYCLE_TIME = 0.001
+CYCLE_TIME = 0.010
+
+# done
+[EMCIO]
+TOOL_TABLE = eoffset.tbl
+EMCIO = io
+CYCLE_TIME = 0.100
+
+# done
+[EMCMOT]
+EMCMOT = motmod
+COMM_TIMEOUT = 1.0
+BASE_PERIOD = 62500
+SERVO_PERIOD = 1000000
+
+#[EMCMOT]
+#EMCMOT = motmod
+#SERVO_PERIOD = 1000000
+
+# done
+[TRAJ]
+SPINDLES = 2
+COORDINATES   = XYZ
+LINEAR_UNITS  = inch
+ANGULAR_UNITS = degree
+DEFAULT_LINEAR_VELOCITY = 1.00
+MAX_LINEAR_VELOCITY = 1.50
+
+# done
+[KINS]
+JOINTS     = 3
+KINEMATICS = trivkins coordinates=XYZ kinstype=BOTH
+
+[AXIS_X]
+MAX_VELOCITY = 1.333333
+MAX_ACCELERATION = 3.5
+MIN_LIMIT = -0.01
+MAX_LIMIT = 24.0
+
+[JOINT_0]
+TYPE = LINEAR
+HOME = 0.0
+MIN_LIMIT = -0.01
+MAX_LIMIT = 24.0
+MAX_VELOCITY = 1.333333
+MAX_ACCELERATION = 3.5
+STEPGEN_MAXACCEL = 4.375
+# Value for 1600 steps/rotation for cheapo Amazon stepper
+SCALE = 8128.0
+FERROR = 0.05
+MIN_FERROR = 0.01
+HOME_OFFSET = -0.100000
+HOME_SEARCH_VEL = -0.700000
+HOME_LATCH_VEL = 0.049213
+HOME_IGNORE_LIMITS = YES
+HOME_SEQUENCE = 1
+
+
+[AXIS_Y]
+MAX_VELOCITY = 1.333333
+MAX_ACCELERATION = 3.5
+MIN_LIMIT = -0.01
+MAX_LIMIT = 24.0
+
+[JOINT_1]
+TYPE = LINEAR
+HOME = 0.0
+MIN_LIMIT = -0.01
+MAX_LIMIT = 24.0
+MAX_VELOCITY = 1.333333
+MAX_ACCELERATION = 3.5
+STEPGEN_MAXACCEL = 4.375
+# Value for 2000 steps/rotation for Compumotor stepper
+SCALE = 10160.0
+FERROR = 0.05
+MIN_FERROR = 0.01
+HOME_OFFSET = -0.100000
+HOME_SEARCH_VEL = -0.70000
+HOME_LATCH_VEL = -0.049213
+HOME_IGNORE_LIMITS = YES
+HOME_SEQUENCE = 2
+
+
+[AXIS_Z]
+# set to double the value in the corresponding joint
+MAX_VELOCITY = 2.0
+# set to double the value in the corresponding joint
+MAX_ACCELERATION = 5.0
+# shares the above two equally between the joint and the offset
+OFFSET_AV_RATIO = 0.5
+MIN_LIMIT = -6.0
+MAX_LIMIT = 0.25
+
+HPID_PGAIN =      7
+HPID_IGAIN =      0
+HPID_DGAIN =      0.85
+HPID_FNUM  =      0
+HPID_K     =  10000
+
+# scaling for eoffset to simulated volts:
+# using   0.004 v/inch
+#       254 inch/volt/(25.4 mm/inch) = 10 volts/mm
+# XXX: needs tuning
+HPID_SIM_VOLTS_PER_MM        =   10
+
+HPID_SIM_TOVOLTS_OFFSET      =   60
+HPID_SIM_TORCH_GAIN          =    0.2696
+HPID_SIM_TORCH_ARCWIDTH_WAIT =    1
+
+# NOTE: setting OFFSET_AV_RATIO to 0.5 and using
+#       doubled values for MAX_VELOCITY,MAX_ACCELERATION
+#       is only applicable to systems where planned
+#       motion (gcode) and external offset motion
+#       are MUTUALLY EXCLUSIVE
+# OFFSET_AV_RATIO  =   0.5
+# MAX_VELOCITY     =   2
+# MAX_ACCELERATION = 100
+# MAX_LIMIT        =   0.5
+# MIN_LIMIT        =  -1
+
+[JOINT_2]
+TYPE = LINEAR
+HOME = 0.0
+MIN_LIMIT = -6.0
+MAX_LIMIT = 0.25
+MAX_VELOCITY = 1.0
+MAX_ACCELERATION = 2.5
+STEPGEN_MAXACCEL = 3.00
+SCALE = 100000.0
+FERROR = 0.05
+MIN_FERROR = 0.01
+HOME_OFFSET = 0.10000
+HOME_SEARCH_VEL = 0.7
+HOME_LATCH_VEL = 0.041667
+HOME_IGNORE_LIMITS = YES
+HOME_SEQUENCE = 2
+
+
+# [JOINT_0]
+# TYPE          = LINEAR
+# HOME_SEQUENCE = 0
+# 
+# [JOINT_1]
+# TYPE          = LINEAR
+# HOME_SEQUENCE = 0
+# 
+# [JOINT_2]
+# TYPE          = LINEAR
+# HOME_SEQUENCE = 0

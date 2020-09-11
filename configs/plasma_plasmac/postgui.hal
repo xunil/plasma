@@ -1,0 +1,13 @@
+# Keep your post GUI customisations here to prevent them from
+# being overwritten by updates or pncconf/stepconf changes
+
+# As an example:
+# You may want to connect the plasmac components thc-enable pin
+# to a switch you have on your machine rather than let it be
+# controlled from the GUI Run tab.
+
+# First disconnect the GUI Run tab from the plasmac:thc-enable signal
+# net unlinkp plasmac_thc.enable-out
+
+# Then connect your switch input pint to the plasmac:thc-enable signal
+# net plasmac:thc-enable your.input-pin
