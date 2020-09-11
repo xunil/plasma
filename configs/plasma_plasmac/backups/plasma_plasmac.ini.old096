@@ -8,7 +8,7 @@
 [PLASMAC]
 
 # required for upgrades (DO NOT CHANGE)
-LAST_MAJOR_UPGRADE      = 0.144
+LAST_UPGRADE            = 0.090
 
 # required for upgrades (DO NOT CHANGE)
 LAST_MAJOR_UPGRADE      = 0.144
@@ -39,10 +39,6 @@ PAUSED_MOTION_SPEED     = 50
 
 # torch on time when manual pulse requested
 TORCH_PULSE_TIME        = 1.0
-
-# for Powermax communications
-#PM_PORT                 = /dev/ttyUSB0
-#PM_PRESSURE_DISPLAY     = Bar
 
 # for Powermax communications
 #PM_PORT                 = /dev/ttyUSB0

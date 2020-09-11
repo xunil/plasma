@@ -2,16 +2,10 @@
 # this section only reqired if using the sim testing panel
 # [APPLICATIONS]
 # DELAY                   = 3
-# APP                     = test/plasmac_test.py
+# APP                     = ./test/plasmac_test.py
 
 # required
 [PLASMAC]
-
-# required for upgrades (DO NOT CHANGE)
-LAST_MAJOR_UPGRADE      = 0.144
-
-# required for upgrades (DO NOT CHANGE)
-LAST_MAJOR_UPGRADE      = 0.144
 
 # sets the operating mode, if not specified the default is 0
 # 0 = use arc-voltage-in for arcOK and THC (no need to connect arc-ok-in, move-up-in and move-down-in)
@@ -39,14 +33,6 @@ PAUSED_MOTION_SPEED     = 50
 
 # torch on time when manual pulse requested
 TORCH_PULSE_TIME        = 1.0
-
-# for Powermax communications
-#PM_PORT                 = /dev/ttyUSB0
-#PM_PRESSURE_DISPLAY     = Bar
-
-# for Powermax communications
-#PM_PORT                 = /dev/ttyUSB0
-#PM_PRESSURE_DISPLAY     = Bar
 
 # for the five user buttons in the main window
 BUTTON_1_NAME           = Ohmic\Test
@@ -96,20 +82,20 @@ BUTTON_19_IMAGE          =
 # this is optional and if used then plasmac_gcode.py needs to be set as executable
 [FILTER]
 PROGRAM_EXTENSION       = .ngc remove z axis stuff
-ngc                     = ./plasmac/plasmac_gcode.py
+ngc                     = ./plasmac_gcode.py
 
 [RS274NGC]
 RS274NGC_STARTUP_CODE   = o<imperial_startup> call
 PARAMETER_FILE          = imperial_parameters.txt
 
 # required, ./ must be in this path
-SUBROUTINE_PATH         = ./:./plasmac:../../nc_files/subroutines
+SUBROUTINE_PATH         = ./:../../nc_files/subroutines
 
 # required for reading ini and hal variables
 FEATURES                = 12
 
 # required for our material change
-USER_M_PATH = ./:./plasmac
+USER_M_PATH = ./
 
 [HAL]
 # required
@@ -117,7 +103,7 @@ TWOPASS = ON
 # the base machine
 HALFILE = plasma_plasmac.hal
 # the plasmac component connections
-HALFILE                 = ./plasmac/plasmac.tcl
+HALFILE = plasmac.hal
 # the plasmac machine connections
 HALFILE = plasma_plasmac_connections.hal
 # use this for customisation after GUI has loaded
@@ -154,25 +140,25 @@ OPEN_FILE = ""
 
 # required
 EMBED_TAB_NAME          = Statistics
-EMBED_TAB_COMMAND       = gladevcp -c plasmac_stats -x {XID} -u ./plasmac/plasmac_stats.py -H ./plasmac/plasmac_stats.hal ./plasmac/plasmac_stats.glade
+EMBED_TAB_COMMAND       = gladevcp -c plasmac_stats -x {XID} -u ./plasmac_stats.py -H ./plasmac_stats.hal plasmac_stats.glade
 
 EMBED_TAB_NAME          = Run
 # use one of the next two
 # run panel in tab behind preview
-EMBED_TAB_COMMAND       = gladevcp -c plasmac_run -x {XID} -u ./plasmac/plasmac_run.py -H ./plasmac/plasmac_run.hal ./plasmac/plasmac_run_tab.glade
+EMBED_TAB_COMMAND       = gladevcp -c plasmac_run -x {XID} -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_tab.glade
 # run panel on right
-#GLADEVCP                = -c plasmac_run -u ./plasmac/plasmac_run.py -H ./plasmac/plasmac_run.hal ./plasmac/plasmac_run_panel.glade
+#GLADEVCP                = -c plasmac_run -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_panel.glade
 
 EMBED_TAB_NAME          = Config
-EMBED_TAB_COMMAND       = gladevcp -c plasmac_config -x {XID} -u ./plasmac/plasmac_config.py -H ./plasmac/plasmac_config.hal ./plasmac/plasmac_config.glade
+EMBED_TAB_COMMAND       = gladevcp -c plasmac_config -x {XID} -u ./plasmac_config.py -H plasmac_config.hal plasmac_config.glade
 
 # required
-USER_COMMAND_FILE       = ./plasmac/plasmac_axis.py
+USER_COMMAND_FILE       = plasmac_axis.py
 
 # hpid.ini: adapted from jthornton plasma configuration
 
 EMBED_TAB_NAME          = Extras
-EMBED_TAB_COMMAND       = gladevcp -c plasmac_wizards -x {XID} -u ./plasmac/plasmac_wizards.py ./plasmac/plasmac_wizards.glade
+EMBED_TAB_COMMAND       = halcmd loadusr -Wn plasmac_wizards gladevcp -c plasmac_wizards -x {XID} -u ./plasmac_wizards.py plasmac_wizards.glade
 
 [HOSTMOT2]
 DRIVER=hm2_eth board_ip="10.10.10.10"

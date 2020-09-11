@@ -30,7 +30,7 @@ net plasmac:torch-on => hm2_7i92.0.gpio.022.out
 # a 1 here allows multiple tools to be used
 # gcode M3 S1 needs to be changed to:
 # M3 $0 S1 for the plasma torch
-# M3 $1 S1 for the scribe
+# M3 $1 S1 for the air scribe
 setp plasmac.multi-tool 0
-# net plasmac:scribe-arm       plasmac.scribe-arm       => ***YOUR_SCRIBE_ARMING_OUTPUT***
-# net plasmac:scribe-on        plasmac.scribe-on        => ***YOUR_AIR_SCRIBE_ON_OUTPUT***
+# net plasmac:air-scribe-arm   plasmac.air-scribe-arm   => ***YOUR_AIR_SCRIBE_ARMING_OUTPUT***
+# net plasmac:air-scribe-start plasmac.air-scribe-start => ***YOUR_AIR_SCRIBE_START_OUTPUT***

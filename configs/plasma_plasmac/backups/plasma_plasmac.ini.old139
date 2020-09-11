@@ -8,7 +8,7 @@
 [PLASMAC]
 
 # required for upgrades (DO NOT CHANGE)
-LAST_MAJOR_UPGRADE      = 0.144
+LAST_UPGRADE            = 0.097
 
 # required for upgrades (DO NOT CHANGE)
 LAST_MAJOR_UPGRADE      = 0.144
